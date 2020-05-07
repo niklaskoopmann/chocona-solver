@@ -9,5 +9,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="javafx.base" level="project" />
     <orderEntry type="library" name="javafx.media" level="project" />
+    <orderEntry type="library" name="json-20190722" level="project" />
+    <orderEntry type="library" name="json-simple-1.1.1" level="project" />
   </component>
 </module>

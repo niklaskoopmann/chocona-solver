@@ -1,8 +1,9 @@
-<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.GridPane?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
 <GridPane fx:controller="sample.Controller"
-          xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="10" vgap="10">
+          xmlns:fx="http://javafx.com/fxml" hgap="10" vgap="10">
+    <Label fx:id="f5lbl" layoutX="10" layoutY="10" minWidth="50" prefWidth="50">F5: Step</Label>
+    <Label fx:id="f6lbl" layoutX="60" layoutY="10" minWidth="50" prefWidth="50">F6: Solve</Label>
+    <Label fx:id="f8lbl" layoutX="120" layoutY="10" minWidth="50" prefWidth="50">F8: Close</Label>
 </GridPane>

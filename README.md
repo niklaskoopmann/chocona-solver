@@ -1,1 +1,1 @@
-# chocona-solver
+# chocona-logic
