@@ -2,19 +2,19 @@ package structure;
 
 public class Cell {
 
-    private final int x;
-    private final int y;
+    private final long x;
+    private final long y;
 
-    public Cell(int x, int y) {
+    public Cell(long x, long y) {
         this.x = x;
         this.y = y;
     }
 
-    public int getX() {
+    public long getX() {
         return x;
     }
 
-    public int getY() {
+    public long getY() {
         return y;
     }
 

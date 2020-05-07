@@ -1,0 +1,9 @@
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.GridPane?>
+
+<GridPane fx:controller="gui.Controller"
+          xmlns:fx="http://javafx.com/fxml" hgap="10" vgap="10">
+    <Label fx:id="f5lbl" layoutX="10" layoutY="10" minWidth="50" prefWidth="50">F5: Step</Label>
+    <Label fx:id="f6lbl" layoutX="60" layoutY="10" minWidth="50" prefWidth="50">F6: Solve</Label>
+    <Label fx:id="f8lbl" layoutX="120" layoutY="10" minWidth="50" prefWidth="50">F8: Close</Label>
+</GridPane>

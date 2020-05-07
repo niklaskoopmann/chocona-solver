@@ -1,8 +1,10 @@
 package logic;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import structure.Cell;
 import structure.Region;
 
 import java.nio.charset.Charset;
@@ -25,8 +27,6 @@ public class InputParser {
 
         String rawInput = Files.readString(pathToJsonFile, Charset.defaultCharset());
 
-        System.out.println(rawInput);
-
         JSONParser prs = new JSONParser();
 
         jsonObj = (JSONObject) prs.parse(rawInput);
@@ -34,9 +34,24 @@ public class InputParser {
 
     public ArrayList<Region> parseToField(JSONObject jsonObject) {
 
-        ArrayList<Region> parsedRegions = new ArrayList<Region>();
+        ArrayList<Region> parsedRegions = new ArrayList<>();
 
-        jsonObject.
+        JSONArray shapes = (JSONArray) jsonObject.get("shapes");
+
+        shapes.forEach(shape -> {
+
+            JSONArray cells = (JSONArray) (((JSONObject) (shape)).get("fields"));
+            ArrayList<Cell> parsedCells = new ArrayList<>();
+
+            cells.forEach(cell -> {
+
+                JSONObject castCell = (JSONObject) cell;
+                Cell currentCellParsed = new Cell((long) castCell.get("x"), (long) castCell.get("y"));
+                parsedCells.add(currentCellParsed);
+            });
+
+            parsedRegions.add(new Region((long) ((JSONObject)shape).get("number"), parsedCells.size(), parsedCells));
+        });
 
         return parsedRegions;
     }
