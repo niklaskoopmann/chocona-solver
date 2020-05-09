@@ -4,11 +4,11 @@ import java.util.ArrayList;
 
 public class Region {
 
-    public long targetNumber;
+    public int targetNumber;
     public int totalCells;
     public ArrayList<Cell> cells;
 
-    public Region(long targetNumber, int totalCells, ArrayList<Cell> cells) {
+    public Region(int targetNumber, int totalCells, ArrayList<Cell> cells) {
         this.targetNumber = targetNumber;
         this.totalCells = totalCells;
         this.cells = cells;

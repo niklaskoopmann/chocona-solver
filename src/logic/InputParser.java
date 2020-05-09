@@ -46,11 +46,11 @@ public class InputParser {
             cells.forEach(cell -> {
 
                 JSONObject castCell = (JSONObject) cell;
-                Cell currentCellParsed = new Cell((long) castCell.get("x"), (long) castCell.get("y"));
+                Cell currentCellParsed = new Cell((int)(long)castCell.get("x"), (int)(long)castCell.get("y"));
                 parsedCells.add(currentCellParsed);
             });
 
-            parsedRegions.add(new Region((long) ((JSONObject)shape).get("number"), parsedCells.size(), parsedCells));
+            parsedRegions.add(new Region((int)(long)((JSONObject)shape).get("number"), parsedCells.size(), parsedCells));
         });
 
         return parsedRegions;
