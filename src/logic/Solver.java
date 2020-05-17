@@ -3,22 +3,72 @@ package logic;
 import structure.Field;
 import structure.Region;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Solver {
 
-    // todo implement method
-    public void solvePuzzle(){
+    private final int initialPopulationSize;
+    private final int numberOfGenerations;
+
+    public Solver(int initialPopulationSize, int numberOfGenerations) {
+        this.initialPopulationSize = initialPopulationSize;
+        this.numberOfGenerations = numberOfGenerations;
+    }
+
+    // generic constructor sets default values
+    public Solver() {
+        this.initialPopulationSize = 200;
+        this.numberOfGenerations = 25;
+    }
+
+    public Field solvePuzzleGenetic(Field toSolve){
+
+        // initialize population
+        ArrayList<Player> population = new ArrayList<Player>();
+        for (int i = 0; i < initialPopulationSize; i++) population.add(new Player(toSolve.getWidth(), toSolve.getHeight()));
+
+        // simulate generations
+        int previousGenerationPopulationFitness = Integer.MIN_VALUE;
+        for (int i = 0; i < numberOfGenerations; i++) {
+
+            // calculate fitness for each individual
+            int j = 1;
+            int populationFitness = 0;
+            for (Player p : population) {
+
+                Field wrapper = new Field(toSolve.getWidth(), toSolve.getHeight(), toSolve.getRegions());
+                wrapper.solution = p.getProposedSolution();
+                p.fitness = checkSolution(wrapper);
+                populationFitness += p.fitness;
+
+                System.out.printf("Gen. %d, Player %d: Fitness %d", i, j, p.fitness);
+
+                j++;
+            }
+
+            // sort population list based on fitness
+            population.sort(Comparator.comparingInt(Player::getFitness).reversed());
+
+            // if there is no significant change in overall fitness, get best solution and break
+            if (Math.abs(previousGenerationPopulationFitness - populationFitness) <= 1) {
+                toSolve.solution = population.get(0).getProposedSolution();
+                return toSolve;
+            }
+
+
+
+        }
+
         throw new UnsupportedOperationException();
     }
 
-    // todo implement method
-    public int calculateScore() {
-        throw new UnsupportedOperationException();
-    }
+    // todo document algorithm
+    public int checkSolution(Field solvedField) {
 
-    // todo split into separate methods
-    public boolean checkSolution(Field solvedField) {
+        // use final int array for access from within lambda function
+        final int[] score = {0};
 
         // first: Check all the regions with defined target values.
         // Is the right number of cells blackened? If anything does not match, return false right away.
@@ -26,14 +76,22 @@ public class Solver {
             if (r.targetNumber > 0) {
                 AtomicInteger blackened = new AtomicInteger();
                 r.cells.forEach(c -> {
-                    if (solvedField.solution[c.getX()][c.getY()] == 'B') blackened.getAndIncrement();
+                    if (solvedField.solution[c.getX()][c.getY()] == 'B') {
+                        blackened.getAndIncrement();
+                        // award points for correct field
+                        score[0]++;
+                    }
                 });
                 if (blackened.get() != r.targetNumber) {
-                    return false;
+                    return score[0];
+                } else {
+                    // award points for each correct region
+                    score[0] += 2;
                 }
             }
         }
-        // for scoring: add some score value for getting defined regions right
+        // award points for getting all predefined regions right
+        score[0] += 10;
 
         // second: find rectangles in matrix
 
@@ -49,10 +107,13 @@ public class Solver {
             // add current row to previous evaluation
             rowEvaluation = addIntArrayElementsIfNotZero(rowEvaluation, rowInts);
 
-            if (!validateRectangleCountArray(rowEvaluation)) return false;
+            if (!validateRectangleCountArray(rowEvaluation)) return score[0];
+            else score[0]+=3; // award some points for each row without error
         }
 
-        return true;
+        // award lots of points for correct solution
+        score[0] += 100;
+        return score[0];
     }
 
     // todo Might change the types for solution array to int to skip this step
@@ -95,7 +156,7 @@ public class Solver {
     private boolean validateRectangleCountArray(int[] rectangleCounter) {
 
         for (int i = 1; i < rectangleCounter.length; i++) {
-            if(rectangleCounter[i] != rectangleCounter[i - 1]) {
+            if (rectangleCounter[i] != rectangleCounter[i - 1]) {
                 if (rectangleCounter[i] != 0 || rectangleCounter[i - 1] != 0) return false;
             }
         }

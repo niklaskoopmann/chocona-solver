@@ -5,6 +5,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import structure.Cell;
+import structure.Field;
 import structure.Region;
 
 import java.nio.charset.Charset;
@@ -32,11 +33,15 @@ public class InputParser {
         jsonObj = (JSONObject) prs.parse(rawInput);
     }
 
-    public ArrayList<Region> parseToField(JSONObject jsonObject) {
+    public Field parseToField(JSONObject jsonObject) {
 
         ArrayList<Region> parsedRegions = new ArrayList<>();
 
         JSONArray shapes = (JSONArray) jsonObject.get("shapes");
+
+        // use final arrays to set from inside lambda expressions
+        final int[] maxX = {0};
+        final int[] maxY = {0};
 
         shapes.forEach(shape -> {
 
@@ -46,14 +51,21 @@ public class InputParser {
             cells.forEach(cell -> {
 
                 JSONObject castCell = (JSONObject) cell;
-                Cell currentCellParsed = new Cell((int)(long)castCell.get("x"), (int)(long)castCell.get("y"));
+                int currentX = (int)(long)castCell.get("x");
+                int currentY = (int)(long)castCell.get("y");
+                Cell currentCellParsed = new Cell(currentX, currentY);
+
+                // check for new maximum x/y coordinates
+                if (currentX > maxX[0]) maxX[0] = currentX;
+                if (currentY > maxY[0]) maxY[0] = currentY;
+
                 parsedCells.add(currentCellParsed);
             });
 
             parsedRegions.add(new Region((int)(long)((JSONObject)shape).get("number"), parsedCells.size(), parsedCells));
         });
 
-        return parsedRegions;
+        return new Field(maxX[0], maxY[0], parsedRegions);
     }
 
     @Override
