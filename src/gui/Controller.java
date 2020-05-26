@@ -34,4 +34,8 @@ public class Controller {
             }
         }
     }
+
+    public void dummy() {
+        System.out.println("Dummy called!");
+    }
 }
