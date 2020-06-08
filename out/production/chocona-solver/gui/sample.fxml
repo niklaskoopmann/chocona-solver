@@ -27,7 +27,7 @@
     <Label contentDisplay="CENTER" text="F8: Close" GridPane.columnIndex="2" GridPane.halignment="CENTER"/>
     <AnchorPane id="boardPane" fx:id="boardPane" GridPane.columnIndex="3" prefWidth="640" prefHeight="640"
                 GridPane.rowIndex="1">
-        <Rectangle fill="TRANSPARENT" height="20.0" layoutX="126.0" layoutY="29.0" smooth="false"
-                   stroke="TRANSPARENT" strokeType="INSIDE" width="20.0"/>
+
     </AnchorPane>
+    <Label fx:id="textOutput" id="textOutput" GridPane.rowIndex="2"/>
 </GridPane>

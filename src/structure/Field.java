@@ -15,6 +15,13 @@ public class Field {
         this.regions = regions;
     }
 
+    public Field(char[][] solution) {
+        this.solution = solution;
+        this.width = solution[0].length;
+        this.height = solution.length;
+        this.regions = new ArrayList<>(); // debug
+    }
+
     public int getWidth() {
         return width;
     }

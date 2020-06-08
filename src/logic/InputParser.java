@@ -65,7 +65,7 @@ public class InputParser {
             parsedRegions.add(new Region((int)(long)((JSONObject)shape).get("number"), parsedCells.size(), parsedCells));
         });
 
-        return new Field(maxX[0], maxY[0], parsedRegions);
+        return new Field(maxX[0] + 1, maxY[0] + 1, parsedRegions);
     }
 
     @Override

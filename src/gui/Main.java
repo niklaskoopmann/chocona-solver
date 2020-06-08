@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
+import logic.Solver;
 import structure.Field;
 
 import java.nio.file.Path;
@@ -20,7 +21,7 @@ public class Main extends Application {
 
         logic.InputParser ip = new logic.InputParser();
         try {
-            ip.parseFile(Path.of("C:\\Users\\Niklas\\Documents\\01_DHBW\\chocona-solver\\test\\input_data\\12"));
+            ip.parseFile(Path.of("C:\\Users\\Niklas\\Documents\\01_DHBW\\chocona-solver\\test\\input_data\\01"));
             Field f = ip.parseToField(ip.getJsonObj());
             f.getRegions().forEach(r -> System.out.println(r.toString()));
             testField = f;
@@ -38,14 +39,34 @@ public class Main extends Application {
         loader.setController(controller);
         Parent root = loader.load();
         Scene mainScene = new Scene(root, 800, 600);
+        controller.drawField(testField);
+        Solver s = new Solver();
 
+        // detect keystrokes
         final EventHandler<KeyEvent> keyEventHandler = keyEvent -> {
             KeyCode keyCode = keyEvent.getCode();
             if (keyCode == KeyCode.F5) {
-                controller.drawField(testField);
                 System.out.println("F5 pressed!");
+                /*testField.solution = new char[][]{
+                        {'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'W'},
+                        {'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'W'},
+                        {'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'W'},
+                        {'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'W'},
+                        {'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'W'},
+                        {'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'W'},
+                        {'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'W'},
+                        {'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'W'},
+                        {'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'W'},
+                        {'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'W'}
+                };
+                controller.updateField(testField);
+                int score = s.checkSolution(testField);
+                System.out.println("Best score: " + score);*/
             } else if(keyCode == KeyCode.F6) {
                 System.out.println("F6 pressed!");
+                Field solvedTestField = s.solvePuzzleGenetic(testField);
+                controller.updateField(solvedTestField);
+                controller.setOutputText("No solution after 25 generations!");
             } else if(keyCode == KeyCode.F8) {
                 System.out.println("F8 pressed!");
             }
@@ -55,7 +76,7 @@ public class Main extends Application {
         mainScene.setOnKeyReleased(keyEventHandler);
 
 
-        primaryStage.setTitle("Hello World");
+        primaryStage.setTitle("Chocona Solver");
         primaryStage.setScene(mainScene);
         primaryStage.show();
     }

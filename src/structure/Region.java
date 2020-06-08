@@ -14,6 +14,15 @@ public class Region {
         this.cells = cells;
     }
 
+    public Cell getCellRelative(Cell cell, int stepsToRight, int stepsToBottom) {
+        int targetX = cell.getX() + stepsToRight;
+        int targetY = cell.getY() + stepsToBottom;
+        for (Cell c : this.cells) {
+            if (c.getX() == targetX && c.getY() == targetY) return c;
+        }
+        return null;
+    }
+
     @Override
     public String toString() {
         return "Region{" +
