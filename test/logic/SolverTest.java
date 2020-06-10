@@ -10,10 +10,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class SolverTest {
 
     Solver solver;
+    Field field;
 
     @BeforeEach
     void setUp() {
-        solver = new Solver();
+        field = new Field(new char[4][4]);
+        solver = new Solver(field);
     }
 
     @AfterEach
@@ -22,6 +24,14 @@ class SolverTest {
 
     @Test
     void solvePuzzleGenetic() {
+    }
+
+    @Test
+    void initializePopulation() {
+        int targetPopulationSize = 1337;
+        solver = new Solver(targetPopulationSize, 4711, 0.666, field);
+        solver.initializePopulation();
+        assertEquals(targetPopulationSize, solver.getPopulation().size());
     }
 
     @Test

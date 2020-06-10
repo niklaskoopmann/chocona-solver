@@ -133,4 +133,8 @@ public class Controller {
     public void setOutputText(String s) {
         outputText = new Label(s);
     }
+
+    public void resetBoardPane() {
+        this.boardPane.getChildren().clear();
+    }
 }

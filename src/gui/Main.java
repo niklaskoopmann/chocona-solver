@@ -5,9 +5,9 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.input.*;
 import javafx.stage.Stage;
+import logic.InputParser;
 import logic.Solver;
 import structure.Field;
 
@@ -16,19 +16,12 @@ import java.nio.file.Path;
 public class Main extends Application {
 
     private static Field testField;
+    private static Solver solver;
+    private static int counter;
 
     public static void main(String[] args) {
 
-        logic.InputParser ip = new logic.InputParser();
-        try {
-            ip.parseFile(Path.of("C:\\Users\\Niklas\\Documents\\01_DHBW\\chocona-solver\\test\\input_data\\01"));
-            Field f = ip.parseToField(ip.getJsonObj());
-            f.getRegions().forEach(r -> System.out.println(r.toString()));
-            testField = f;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        counter = 0;
         launch(args);
     }
 
@@ -39,14 +32,46 @@ public class Main extends Application {
         loader.setController(controller);
         Parent root = loader.load();
         Scene mainScene = new Scene(root, 800, 600);
-        controller.drawField(testField);
-        Solver s = new Solver();
+        mainScene.setOnDragOver(event -> {
+            if (event.getGestureSource() != mainScene && event.getDragboard().hasFiles()) {
+                event.acceptTransferModes(TransferMode.COPY);
+            }
+            event.consume();
+        });
+        mainScene.setOnDragDropped(new EventHandler<DragEvent>() {
+            @Override
+            public void handle(DragEvent dragEvent) {
+                Dragboard db = dragEvent.getDragboard();
+                boolean dropSuccess = false;
+                controller.resetBoardPane();
+                counter = 0;
+                if (db.hasFiles()) {
+                    InputParser ip = new InputParser();
+                    try {
+                        ip.parseFile(Path.of(db.getFiles().get(0).getAbsolutePath()));
+                        Field f = ip.parseToField(ip.getJsonObj());
+                        f.getRegions().forEach(r -> System.out.println(r.toString()));
+                        testField = f;
+                        controller.drawField(testField);
+                        solver = new Solver(testField);
+                        dropSuccess = true;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    dragEvent.setDropCompleted(dropSuccess);
+                    dragEvent.consume();
+                }
+            }
+        });
 
         // detect keystrokes
         final EventHandler<KeyEvent> keyEventHandler = keyEvent -> {
             KeyCode keyCode = keyEvent.getCode();
             if (keyCode == KeyCode.F5) {
-                System.out.println("F5 pressed!");
+                if (solver != null) {
+                    solver.stepGeneration(counter, solver.getPopulation());
+                    controller.updateField(solver.getCurrentBestPlayerSolution());
+                }
                 /*testField.solution = new char[][]{
                         {'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'W'},
                         {'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'W'},
@@ -63,10 +88,10 @@ public class Main extends Application {
                 int score = s.checkSolution(testField);
                 System.out.println("Best score: " + score);*/
             } else if(keyCode == KeyCode.F6) {
-                System.out.println("F6 pressed!");
-                Field solvedTestField = s.solvePuzzleGenetic(testField);
-                controller.updateField(solvedTestField);
-                controller.setOutputText("No solution after 25 generations!");
+                if(solver != null) {
+                    Field solvedTestField = solver.solvePuzzleGenetic();
+                    controller.updateField(solvedTestField);
+                }
             } else if(keyCode == KeyCode.F8) {
                 System.out.println("F8 pressed!");
             }

@@ -27,10 +27,7 @@ public class InputParser {
     public void parseFile(Path pathToJsonFile) throws java.io.IOException, ParseException {
 
         String rawInput = Files.readString(pathToJsonFile, Charset.defaultCharset());
-
-        JSONParser prs = new JSONParser();
-
-        jsonObj = (JSONObject) prs.parse(rawInput);
+        jsonObj = (JSONObject) new JSONParser().parse(rawInput);
     }
 
     public Field parseToField(JSONObject jsonObject) {
