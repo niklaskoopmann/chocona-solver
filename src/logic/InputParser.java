@@ -15,19 +15,19 @@ import java.util.ArrayList;
 
 public class InputParser {
 
-    private JSONObject jsonObj;
+    private JSONObject jsonObject;
 
     public InputParser() {
     }
 
-    public JSONObject getJsonObj() {
-        return jsonObj;
+    public JSONObject getJsonObject() {
+        return jsonObject;
     }
 
     public void parseFile(Path pathToJsonFile) throws java.io.IOException, ParseException {
 
         String rawInput = Files.readString(pathToJsonFile, Charset.defaultCharset());
-        jsonObj = (JSONObject) new JSONParser().parse(rawInput);
+        jsonObject = (JSONObject) new JSONParser().parse(rawInput);
     }
 
     public Field parseToField(JSONObject jsonObject) {
@@ -68,7 +68,7 @@ public class InputParser {
     @Override
     public String toString() {
         return "InputParser{" +
-                "jsonObj=" + jsonObj +
+                "jsonObject=" + jsonObject +
                 '}';
     }
 }

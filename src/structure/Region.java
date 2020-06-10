@@ -23,6 +23,18 @@ public class Region {
         return null;
     }
 
+    public int getTargetNumber() {
+        return targetNumber;
+    }
+
+    public int getTotalCells() {
+        return totalCells;
+    }
+
+    public ArrayList<Cell> getCells() {
+        return cells;
+    }
+
     @Override
     public String toString() {
         return "Region{" +

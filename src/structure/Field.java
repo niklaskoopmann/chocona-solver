@@ -33,4 +33,13 @@ public class Field {
     public ArrayList<Region> getRegions() {
         return regions;
     }
+
+    public char[][] getSolution() {
+        return solution;
+    }
+
+    public void setSolution(char[][] solution) {
+        if (solution.length == this.height && solution[0].length == this.width) this.solution = solution;
+        else throw new IllegalArgumentException("Dimensions for field solution do not match field dimensions!");
+    }
 }

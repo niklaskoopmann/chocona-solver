@@ -74,40 +74,13 @@ public class Solver {
         }
 
         // perform selection based on fitness
-        ArrayList<Player> matingPool = new ArrayList<Player>();
-        /*currentPopulation.sort(Comparator.comparingInt((Player p) -> p.fitness).reversed());
-        for (int k = 0; k < initialPopulationSize / 1.5; k++) {
-            //System.out.println("Individual fitness: " + population.get(k).fitness);
-            matingPool.add(currentPopulation.get(k));
-        }*/
-        Random rand = new Random();
-        while (matingPool.size() < initialPopulationSize / 1.5) {
-            Player player = currentPopulation.get(rand.nextInt(currentPopulation.size()));
-            double playerSelectionProbability = (player.fitness * 1.0) / (populationFitness * 1.0);
-            //System.out.println("Player fitness: " + player.fitness + "; selection probability: " + playerSelectionProbability);
-            if (playerSelectionProbability >= Math.random()) {
-                matingPool.add(player);
-                currentPopulation.remove(player);
-            }
-        }
+        ArrayList<Player> matingPool = performSelection(currentPopulation, populationFitness);
 
         // randomize parents for next generation
         Collections.shuffle(matingPool);
 
-        // setup next generation
-        ArrayList<Player> nextGeneration = new ArrayList<Player>();
-
-        // breed children and repopulate
-        for (int k = 0; k < matingPool.size(); k += 2) {
-            Player parentA = matingPool.get(k);
-            Player parentB = matingPool.get(k + 1);
-            Player child = performProbabilisticCrossover(parentA, parentB);
-            if (Math.random() < this.mutationProbability)
-                child.mutate(1 + (int) (child.getSizeX() * this.mutationProbability));
-            //if (Math.random() < this.mutationProbability) child.mutate((int)(child.getSizeX() * child.getSizeY() * this.mutationProbability));
-            //child.mutate((int)(child.getSizeX() * child.getSizeY() * this.mutationProbability));
-            nextGeneration.addAll(Arrays.asList(parentA, parentB, child));
-        }
+        // breed children and populate next generation
+        ArrayList<Player> nextGeneration = mate(matingPool);
 
         // lastly save last generation fitness
         this.populationFitnessHistory.put(currentGeneration, populationFitness);
@@ -118,6 +91,42 @@ public class Solver {
         if (currentPopulation.get(0).fitness > 1000) System.out.println(currentPopulation.get(0).toString());
 
         this.population = nextGeneration;
+    }
+
+    public ArrayList<Player> performSelection(ArrayList<Player> currentPopulation, int populationFitness) {
+        ArrayList<Player> matingPool = new ArrayList<Player>();
+        /*currentPopulation.sort(Comparator.comparingInt((Player p) -> p.fitness).reversed());
+        for (int k = 0; k < initialPopulationSize / 1.5; k++) {
+            //System.out.println("Individual fitness: " + population.get(k).fitness);
+            matingPool.add(currentPopulation.get(k));
+        }*/
+        Random rand = new Random();
+        while (matingPool.size() < this.initialPopulationSize / 1.5) {
+            Player player = currentPopulation.get(rand.nextInt(currentPopulation.size()));
+            double playerSelectionProbability = (player.fitness * 1.0) / (populationFitness * 1.0);
+            //System.out.println("Player fitness: " + player.fitness + "; selection probability: " + playerSelectionProbability);
+            if (playerSelectionProbability >= Math.random()) {
+                matingPool.add(player);
+                currentPopulation.remove(player);
+            }
+        }
+        return matingPool;
+    }
+
+    public ArrayList<Player> mate(ArrayList<Player> matingPool) {
+        // setup next generation
+        ArrayList<Player> nextGeneration = new ArrayList<Player>();
+        for (int k = 0; k < matingPool.size(); k += 2) {
+            Player parentA = matingPool.get(k);
+            Player parentB = matingPool.get(k + 1);
+            Player child = performProbabilisticCrossover(parentA, parentB);
+            if (Math.random() < this.mutationProbability)
+                child.mutate(1 + (int) (child.getSizeX() * this.mutationProbability));
+            //if (Math.random() < this.mutationProbability) child.mutate((int)(child.getSizeX() * child.getSizeY() * this.mutationProbability));
+            //child.mutate((int)(child.getSizeX() * child.getSizeY() * this.mutationProbability));
+            nextGeneration.addAll(Arrays.asList(parentA, parentB, child));
+        }
+        return nextGeneration;
     }
 
     public Field solvePuzzleGenetic() {
@@ -209,7 +218,7 @@ public class Solver {
     }
 
     // todo Might change the types for solution array to int to skip this step
-    private int[] translateToIntArray(char[] blackWhiteCharArray) {
+    public int[] translateToIntArray(char[] blackWhiteCharArray) {
         int[] outIntArray = new int[blackWhiteCharArray.length];
         for (int i = 0; i < blackWhiteCharArray.length; i++) {
             if (blackWhiteCharArray[i] == 'B') outIntArray[i] = 1;
@@ -240,9 +249,6 @@ public class Solver {
                 else result[i] = base[i] + compare[i];
             } else if (i < length - 1) {
                 if (compare[i] == 0 && !(compare[i + 1] != 0 && base[i + 1] != 0 && base[i] != 0)) result[i] = 0;
-                else result[i] = base[i] + compare[i];
-            } else {
-                if (compare[i] == 0) result[i] = 0;
                 else result[i] = base[i] + compare[i];
             }
         }
@@ -321,6 +327,10 @@ public class Solver {
 
     public ArrayList<Player> getPopulation() {
         return population;
+    }
+
+    public void setPopulation(ArrayList<Player> population) {
+        this.population = population;
     }
 
     public int getInitialPopulationSize() {

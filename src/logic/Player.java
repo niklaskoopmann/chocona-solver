@@ -37,8 +37,8 @@ public class Player {
         for (int i = 0; i < numberOfMutations; i++) {
             int x = rand.nextInt(this.sizeX);
             int y = rand.nextInt(this.sizeY);
-            if (this.proposedSolution[x][y] == 'B') this.proposedSolution[x][y] = 'W';
-            else if (this.proposedSolution[x][y] == 'W') this.proposedSolution[x][y] = 'B';
+            if (this.proposedSolution[y][x] == 'B') this.proposedSolution[y][x] = 'W';
+            else if (this.proposedSolution[y][x] == 'W') this.proposedSolution[y][x] = 'B';
         }
     }
 
@@ -48,6 +48,10 @@ public class Player {
 
     public int getFitness() {
         return fitness;
+    }
+
+    public void setFitness(int fitness) {
+        this.fitness = fitness;
     }
 
     public void setCell(int x, int y, char value) {

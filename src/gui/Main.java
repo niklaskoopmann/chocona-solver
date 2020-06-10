@@ -49,7 +49,7 @@ public class Main extends Application {
                     InputParser ip = new InputParser();
                     try {
                         ip.parseFile(Path.of(db.getFiles().get(0).getAbsolutePath()));
-                        Field f = ip.parseToField(ip.getJsonObj());
+                        Field f = ip.parseToField(ip.getJsonObject());
                         f.getRegions().forEach(r -> System.out.println(r.toString()));
                         testField = f;
                         controller.drawField(testField);
