@@ -63,4 +63,13 @@ class FieldTest {
         Exception e = assertThrows(IllegalArgumentException.class, () -> fieldFromValues.setSolution(impossibleSolution));
         assertEquals("Dimensions for field solution do not match field dimensions!", e.getMessage());
     }
+
+    @Test
+    void testToString() {
+        assertTrue(fieldFromValues.toString().contains("Field"));
+        assertTrue(fieldFromValues.toString().contains("width=2"));
+        assertTrue(fieldFromValues.toString().contains("height=7"));
+        assertTrue(fieldFromValues.toString().contains("regions="));
+        assertTrue(fieldFromValues.toString().contains("solution="));
+    }
 }

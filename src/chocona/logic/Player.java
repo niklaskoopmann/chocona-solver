@@ -5,7 +5,7 @@ import java.util.Random;
 
 public class Player {
 
-    private char[][] proposedSolution;
+    private final char[][] proposedSolution;
     public int fitness;
     private final int sizeX;
     private final int sizeY;

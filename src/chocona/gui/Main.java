@@ -48,7 +48,6 @@ public class Main extends Application {
                 try {
                     ip.parseFile(Path.of(db.getFiles().get(0).getAbsolutePath()));
                     Field f = ip.parseToField(ip.getJsonObject());
-                    f.getRegions().forEach(r -> System.out.println(r.toString()));
                     testField = f;
                     controller.drawField(testField);
                     solver = new Solver(testField);

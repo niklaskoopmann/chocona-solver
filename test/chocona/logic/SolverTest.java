@@ -29,12 +29,45 @@ class SolverTest {
 
     @Test
     void stepGeneration() {
+
+        // set some solution for the field
+        char[][] someArbitrarySolution = new char[][] {
+                {'B', 'B', 'B', 'B'},
+                {'B', 'B', 'B', 'B'},
+                {'W', 'W', 'W', 'W'},
+                {'B', 'B', 'W', 'W'}
+        };
+        ArrayList<Cell> cells = new ArrayList<Cell>();
+        cells.add(new Cell(0,0));
+        cells.add(new Cell(0,1));
+        cells.add(new Cell(1,0));
+        cells.add(new Cell(1,1));
+        cells.add(new Cell(2,0));
+        cells.add(new Cell(3,0));
+        cells.add(new Cell(2,1));
+        cells.add(new Cell(3,1));
+        Region someRegion = new Region(8, 8, cells);
+        field.getRegions().add(someRegion);
+        field.setSolution(someArbitrarySolution);
+
+        // re-instantiate solver
+        solver = new Solver(4, 100, 0.001, field);
+
+        // advance one generation
         solver.stepGeneration(0, solver.getPopulation());
+
+        // insert correct solution into the population
+        Player withCorrectSolution = new Player(someArbitrarySolution);
+        solver.getPopulation().add(0, withCorrectSolution);
+
+        // advance another generation
+        solver.stepGeneration(1, solver.getPopulation());
     }
 
     @Test
     void solvePuzzleGenetic() {
-        //solver.solvePuzzleGenetic();
+        Field f = solver.solvePuzzleGenetic();
+        assertNotNull(f);
     }
 
     @Test
@@ -47,7 +80,7 @@ class SolverTest {
             beforeSelection.add(player);
         }
         ArrayList<Player> afterSelection = solver.performSelection(beforeSelection);
-        assertEquals(80, afterSelection.size());
+        assertEquals(60, afterSelection.size());
     }
 
     @Test
@@ -73,7 +106,7 @@ class SolverTest {
             matingPool.add(new Player(white));
         }
         ArrayList<Player> nextGeneration = solver.mate(matingPool);
-        assertEquals(120, nextGeneration.size());
+        assertTrue(nextGeneration.size() < 120);
     }
 
     @Test

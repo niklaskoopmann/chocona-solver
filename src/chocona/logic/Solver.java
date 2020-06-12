@@ -57,10 +57,6 @@ public class Solver {
             initialPlayer.setFitness(checkSolution(wrapper));
             this.population.add(initialPlayer);
         }
-
-
-        // debug
-        System.out.println("initialised " + this.population.size() + " players");
     }
 
     /**
@@ -73,30 +69,20 @@ public class Solver {
      */
     public void stepGeneration(int currentGeneration, ArrayList<Player> currentPopulation) {
 
-        // debug
-        System.out.println("simulating generation " + currentGeneration);
-
         // check if correct solution is present
         currentPopulation.sort(Comparator.comparingInt((Player p) -> p.fitness).reversed());
-        if (currentPopulation.get(0).fitness > 1000) {
+        if (currentPopulation.get(0).fitness == Integer.MAX_VALUE) {
             this.toSolve.solution = currentPopulation.get(0).getProposedSolution();
             this.population = currentPopulation;
             this.solutionFound = true;
 
-            // debug
-            System.out.println("solution found" + currentPopulation.get(0).toString());
+            System.out.println("solution found: " + currentPopulation.get(0).toString());
 
             return;
         }
 
-        // debug
-        System.out.println("no correct solution found");
-
         // perform selection based on fitness
         ArrayList<Player> matingPool = performSelection(currentPopulation);
-
-        // debug
-        System.out.println("mating pool produced, size pop " + currentPopulation.size() + "; size mating pool " + matingPool.size());
 
         // randomize parents for next generation
         Collections.shuffle(matingPool);
@@ -104,14 +90,8 @@ public class Solver {
         // breed children and populate next generation
         ArrayList<Player> nextGeneration = mate(matingPool);
 
-        // debug
-        System.out.println("pop size: " + currentPopulation.size() + "; next gen size: " + nextGeneration.size());
-
         // add next generation's children to population
         currentPopulation.addAll(nextGeneration);
-
-        // debug
-        System.out.println("pop size: " + currentPopulation.size());
 
         // calculate fitness for each individual
         int populationFitness = 0;
@@ -124,27 +104,23 @@ public class Solver {
 
         // if there is no significant change in overall fitness, increase mutation rate
         if (currentGeneration > 10 && Math.abs(populationFitnessHistory.get(currentGeneration - 10) - populationFitness) <= currentPopulation.size() / 100) {
-            this.mutationProbability += Configuration.mutationProbability;
+            this.mutationProbability *= 2;
             System.out.println("Increased mutation probability to " + this.mutationProbability);
         } else this.mutationProbability = Configuration.mutationProbability;
-
-        // debug
-        System.out.println("pop size: " + currentPopulation.size() + " before killing");
 
         // kill off weakest individuals until base population size is reached
         currentPopulation.sort(Comparator.comparingInt((Player p) -> p.fitness).reversed());
         currentPopulation.subList(this.initialPopulationSize, currentPopulation.size()).clear();
 
-        // debug
-        System.out.println("pop size: " + currentPopulation.size() + " after killing");
-
         // lastly save last generation fitness
         this.populationFitnessHistory.put(currentGeneration, populationFitness);
 
-        // debug
-        System.out.println("Pop fitness: " + populationFitness + "; fittest: " + currentPopulation.get(0).fitness + "; least fit: " + currentPopulation.get(currentPopulation.size() - 1).fitness + "; average: " + (populationFitness / nextGeneration.size() * 1.0));
-        //System.out.println(populationFitness);
-        if (currentPopulation.get(0).fitness > 1000) System.out.println(currentPopulation.get(0).toString());
+        System.out.printf("Generation %d; population fitness: %d; fittest: %d; least fit: %d; average: %s%n",
+                currentGeneration,
+                populationFitness,
+                currentPopulation.get(0).fitness,
+                currentPopulation.get(currentPopulation.size() - 1).fitness,
+                populationFitness / nextGeneration.size() * 1.0);
 
         this.population = currentPopulation;
     }
@@ -157,28 +133,19 @@ public class Solver {
      */
     public ArrayList<Player> performSelection(ArrayList<Player> currentPopulation) {
 
-        // debug
-        System.out.println("calculating population fitness for " + currentPopulation.size() + " players");
-
         // calculate population fitness
         int populationFitness = currentPopulation
                 .stream()
                 .mapToInt(Player::getFitness)
                 .sum();
 
-        // debug
-        System.out.println("population fitness: " + populationFitness);
-
         ArrayList<Player> matingPool = new ArrayList<Player>();
         Random rand = new Random();
 
-        // debug
-        System.out.println("selecting " + this.initialPopulationSize / 2.0 + " of " + currentPopulation.size() + " individuals");
-
+        // fill mating pool with individuals (half of total population based on their fitness)
         while (matingPool.size() < this.initialPopulationSize / 2.0) {
             Player player = currentPopulation.get(rand.nextInt(currentPopulation.size()));
             double playerSelectionProbability = (player.fitness * 1.0) / (populationFitness * 1.0);
-            //System.out.println("Player fitness: " + player.fitness + "; selection probability: " + playerSelectionProbability);
             if (playerSelectionProbability >= Math.random()) {
                 matingPool.add(player);
             }
@@ -241,6 +208,11 @@ public class Solver {
         return this.toSolve;
     }
 
+    /**
+     * Get the proposed solution of the current generation's fittest player.
+     *
+     * @return a Field containing the population's current best solution
+     */
     public Field getCurrentBestPlayerSolution() {
         this.population.sort(Comparator.comparingInt((Player p) -> p.fitness).reversed());
         return new Field(this.population.get(0).getProposedSolution());
@@ -254,9 +226,6 @@ public class Solver {
      * @return an integer score
      */
     public int checkSolution(Field solvedField) {
-
-        // debug
-        //System.out.println("Checking solution...");
 
         // use final int array for access from within lambda functions
         final int[] score = {0};
@@ -273,15 +242,12 @@ public class Solver {
                         blackened.getAndIncrement();
                     }
                 });
-                // debug
-                //System.out.println("target evaluation; black cells: " + blackened.get() + "; target: " + r.targetNumber + "; region: " + r.toString());
 
-                // penalty per wrong cell
+                // penalty per wrong cell or reward based on cells in region
                 int differenceBlackened = Math.abs(blackened.get() - r.targetNumber);
-
                 if (differenceBlackened != 0) {
                     allRegionsWithTargetCorrect = false;
-                    score[0]--;
+                    score[0] -= differenceBlackened;
                 } else {
                     // award points for each correct region with target number based on the field chocona.structure
                     score[0] += r.totalCells;
@@ -302,25 +268,21 @@ public class Solver {
             // replace B and W in row with 1 and 0 respectively
             int[] rowInts = translateToIntArray(solvedField.solution[y]);
 
-            // debug
-            //System.out.println("Current row: " + Arrays.toString(rowInts));
-
             // add current row to previous evaluation
             rowEvaluation = addIntArrayElementsIfNotZero(rowEvaluation, rowInts);
-
-            // debug
-            //System.out.println("Accumulated rectangles: " + Arrays.toString(rowEvaluation));
 
             // calculate the number of errors in the current row
             int errorsInRow = validateRectangleCountArray(rowEvaluation);
             if (errorsInRow > 0) {
                 correctSolution = false;
-                score[0]--;
+                score[0] -= errorsInRow;
             } else score[0] += solvedField.getWidth(); // award some points for each row without error
         }
 
-        // award lots of points for correct solution
-        if (correctSolution && allRegionsWithTargetCorrect) score[0] += 1000;
+        // highest possible score for correct solution
+        if (correctSolution && allRegionsWithTargetCorrect) return Integer.MAX_VALUE;
+
+        // otherwise return current score
         return score[0];
     }
 
@@ -378,20 +340,16 @@ public class Solver {
      */
     public int validateRectangleCountArray(int[] rectangleCounter) {
 
-        // debug
-        //System.out.print("Checking rectangle counter: " + Arrays.toString(rectangleCounter) + "; result: ");
-
         int penalty = 0;
 
         for (int i = 1; i < rectangleCounter.length; i++) {
             if (rectangleCounter[i] != rectangleCounter[i - 1]) {
                 if (rectangleCounter[i] != 0 && rectangleCounter[i - 1] != 0) {
-                    //System.out.println("false");
                     penalty++;
                 }
             }
         }
-        //System.out.println("true");
+
         return penalty;
     }
 

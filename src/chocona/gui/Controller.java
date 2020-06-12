@@ -138,6 +138,10 @@ public class Controller {
         return outputText;
     }
 
+    public void setOutputTextLabel(Label outputText) {
+        this.outputText = outputText;
+    }
+
     public void resetBoardPane() {
         this.boardPane.getChildren().clear();
     }
