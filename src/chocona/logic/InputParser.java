@@ -42,7 +42,7 @@ public class InputParser {
 
         shapes.forEach(shape -> {
 
-            JSONArray cells = (JSONArray) (((JSONObject) (shape)).get("fields"));
+            JSONArray cells = (JSONArray) (((JSONObject) shape).get("fields"));
             ArrayList<Cell> parsedCells = new ArrayList<>();
 
             cells.forEach(cell -> {

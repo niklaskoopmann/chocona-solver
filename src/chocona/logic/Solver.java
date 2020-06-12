@@ -233,9 +233,9 @@ public class Solver {
         boolean correctSolution = true;
 
         // first: Check all the regions with defined target values.
-        // Is the right number of cells blackened? If anything does not match, return false right away.
+        // Is the right number of cells blackened? If anything does not match, give a penalty.
         for (Region r : solvedField.getRegions()) {
-            if (r.targetNumber > 0) {
+            if (r.targetNumber > -1) {
                 AtomicInteger blackened = new AtomicInteger();
                 r.cells.forEach(c -> {
                     if (solvedField.solution[c.getY()][c.getX()] == 'B') {
