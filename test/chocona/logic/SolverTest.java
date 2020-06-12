@@ -1,11 +1,11 @@
 package chocona.logic;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import chocona.structure.Cell;
 import chocona.structure.Field;
 import chocona.structure.Region;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,21 +31,21 @@ class SolverTest {
     void stepGeneration() {
 
         // set some solution for the field
-        char[][] someArbitrarySolution = new char[][] {
+        char[][] someArbitrarySolution = new char[][]{
                 {'B', 'B', 'B', 'B'},
                 {'B', 'B', 'B', 'B'},
                 {'W', 'W', 'W', 'W'},
                 {'B', 'B', 'W', 'W'}
         };
         ArrayList<Cell> cells = new ArrayList<Cell>();
-        cells.add(new Cell(0,0));
-        cells.add(new Cell(0,1));
-        cells.add(new Cell(1,0));
-        cells.add(new Cell(1,1));
-        cells.add(new Cell(2,0));
-        cells.add(new Cell(3,0));
-        cells.add(new Cell(2,1));
-        cells.add(new Cell(3,1));
+        cells.add(new Cell(0, 0));
+        cells.add(new Cell(0, 1));
+        cells.add(new Cell(1, 0));
+        cells.add(new Cell(1, 1));
+        cells.add(new Cell(2, 0));
+        cells.add(new Cell(3, 0));
+        cells.add(new Cell(2, 1));
+        cells.add(new Cell(3, 1));
         Region someRegion = new Region(8, 8, cells);
         field.getRegions().add(someRegion);
         field.setSolution(someArbitrarySolution);
@@ -148,22 +148,22 @@ class SolverTest {
 
         ArrayList<Region> regions1 = new ArrayList<Region>();
         ArrayList<Cell> cellsInRegion1 = new ArrayList<Cell>();
-        cellsInRegion1.add(new Cell(0,0));
-        cellsInRegion1.add(new Cell(1,0));
-        cellsInRegion1.add(new Cell(0,1));
-        cellsInRegion1.add(new Cell(1,1));
+        cellsInRegion1.add(new Cell(0, 0));
+        cellsInRegion1.add(new Cell(1, 0));
+        cellsInRegion1.add(new Cell(0, 1));
+        cellsInRegion1.add(new Cell(1, 1));
         regions1.add(new Region(3, 4, cellsInRegion1));
         Field field1 = new Field(10, 10, regions1);
         field1.setSolution(input1);
 
         ArrayList<Region> regions2 = new ArrayList<Region>();
         ArrayList<Cell> cellsInRegion2 = new ArrayList<Cell>();
-        cellsInRegion2.add(new Cell(5,2));
-        cellsInRegion2.add(new Cell(6,2));
-        cellsInRegion2.add(new Cell(5,3));
-        cellsInRegion2.add(new Cell(6,3));
-        cellsInRegion2.add(new Cell(5,4));
-        cellsInRegion2.add(new Cell(5,5));
+        cellsInRegion2.add(new Cell(5, 2));
+        cellsInRegion2.add(new Cell(6, 2));
+        cellsInRegion2.add(new Cell(5, 3));
+        cellsInRegion2.add(new Cell(6, 3));
+        cellsInRegion2.add(new Cell(5, 4));
+        cellsInRegion2.add(new Cell(5, 5));
         regions2.add(new Region(6, 6, cellsInRegion2));
         Field field2 = new Field(10, 10, regions2);
         field2.setSolution(input2);

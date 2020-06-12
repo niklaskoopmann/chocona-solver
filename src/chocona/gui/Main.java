@@ -1,15 +1,18 @@
 package chocona.gui;
 
+import chocona.logic.InputParser;
+import chocona.logic.Solver;
+import chocona.structure.Field;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.input.*;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.TransferMode;
 import javafx.stage.Stage;
-import chocona.logic.InputParser;
-import chocona.logic.Solver;
-import chocona.structure.Field;
 
 import java.nio.file.Path;
 
@@ -27,11 +30,15 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+
+        // init window
         FXMLLoader loader = new FXMLLoader(getClass().getResource("sample.fxml"));
         Controller controller = new Controller();
         loader.setController(controller);
         Parent root = loader.load();
         Scene mainScene = new Scene(root, 800, 600);
+
+        // get file from drag & drop
         mainScene.setOnDragOver(event -> {
             if (event.getGestureSource() != mainScene && event.getDragboard().hasFiles()) {
                 event.acceptTransferModes(TransferMode.COPY);
@@ -60,7 +67,7 @@ public class Main extends Application {
             }
         });
 
-        // detect keystrokes
+        // detect keystrokes for F5, F6, F8
         final EventHandler<KeyEvent> keyEventHandler = keyEvent -> {
             KeyCode keyCode = keyEvent.getCode();
             if (keyCode == KeyCode.F5) {
@@ -68,27 +75,28 @@ public class Main extends Application {
                     solver.stepGeneration(counter, solver.getPopulation());
                     counter++;
                     controller.updateField(solver.getCurrentBestPlayerSolution());
-                    if (solver.isSolutionFound()) controller.setOutputText("Solution found by generation " + counter + ".");
+                    if (solver.isSolutionFound())
+                        controller.setOutputText("Solution found by generation " + counter + ".");
                     else controller.setOutputText("Generation " + counter + ", solution not found yet.");
 
                 }
-            } else if(keyCode == KeyCode.F6) {
-                if(solver != null) {
+            } else if (keyCode == KeyCode.F6) {
+                if (solver != null) {
                     Field solvedTestField = solver.solvePuzzleGenetic();
                     controller.updateField(solvedTestField);
                     counter = solver.getCurrentGenerationIndex();
-                    if (solver.isSolutionFound()) controller.setOutputText("Solution found by generation " + counter + ".");
+                    if (solver.isSolutionFound())
+                        controller.setOutputText("Solution found by generation " + counter + ".");
                     else controller.setOutputText("Generation " + counter + ", solution not found yet.");
                 }
-            } else if(keyCode == KeyCode.F8) {
+            } else if (keyCode == KeyCode.F8) {
                 System.exit(0);
             }
             keyEvent.consume();
         };
-
         mainScene.setOnKeyReleased(keyEventHandler);
 
-
+        // launch gui
         primaryStage.setTitle("Chocona Solver");
         primaryStage.setScene(mainScene);
         primaryStage.show();

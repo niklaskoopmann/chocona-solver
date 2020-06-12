@@ -15,13 +15,13 @@ class RegionTest {
     @BeforeEach
     void setUp() {
         ArrayList<Cell> cells = new ArrayList<Cell>();
-        cells.add(new Cell(0,1));
-        cells.add(new Cell(1,0));
-        cells.add(new Cell(1,1));
-        cells.add(new Cell(1,2));
-        cells.add(new Cell(2,0));
-        cells.add(new Cell(2,1));
-        region = new Region(3, 6,cells);
+        cells.add(new Cell(0, 1));
+        cells.add(new Cell(1, 0));
+        cells.add(new Cell(1, 1));
+        cells.add(new Cell(1, 2));
+        cells.add(new Cell(2, 0));
+        cells.add(new Cell(2, 1));
+        region = new Region(3, 6, cells);
     }
 
     @AfterEach
@@ -30,7 +30,7 @@ class RegionTest {
 
     @Test
     void getCellRelative() {
-        Cell cell = new Cell(1,1);
+        Cell cell = new Cell(1, 1);
         Cell toRight = region.getCellRelative(cell, 1, 0);
         Cell toLeft = region.getCellRelative(cell, -1, 0);
         Cell below = region.getCellRelative(cell, 0, 1);

@@ -6,9 +6,9 @@ import java.util.Random;
 public class Player {
 
     private final char[][] proposedSolution;
-    public int fitness;
     private final int sizeX;
     private final int sizeY;
+    public int fitness;
 
     public Player(int sizeX, int sizeY, boolean randomize) {
 

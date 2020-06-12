@@ -1,5 +1,8 @@
 package chocona.gui;
 
+import chocona.structure.Cell;
+import chocona.structure.Field;
+import chocona.structure.Region;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -12,9 +15,6 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import chocona.structure.Cell;
-import chocona.structure.Field;
-import chocona.structure.Region;
 
 import java.util.Random;
 
@@ -110,7 +110,7 @@ public class Controller {
             char cellSolution = field.getSolution()[Integer.parseInt(coordinates[1])][Integer.parseInt(coordinates[0])];
 
             // filter the pane's children for StackPanes (will only be one)
-            ((Pane)node)
+            ((Pane) node)
                     .getChildren()
                     .stream()
                     .filter(n -> n instanceof StackPane) // avoid the lines

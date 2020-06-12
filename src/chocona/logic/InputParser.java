@@ -1,12 +1,12 @@
 package chocona.logic;
 
+import chocona.structure.Cell;
+import chocona.structure.Field;
+import chocona.structure.Region;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import chocona.structure.Cell;
-import chocona.structure.Field;
-import chocona.structure.Region;
 
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -48,8 +48,8 @@ public class InputParser {
             cells.forEach(cell -> {
 
                 JSONObject castCell = (JSONObject) cell;
-                int currentX = (int)(long)castCell.get("x");
-                int currentY = (int)(long)castCell.get("y");
+                int currentX = (int) (long) castCell.get("x");
+                int currentY = (int) (long) castCell.get("y");
                 Cell currentCellParsed = new Cell(currentX, currentY);
 
                 // check for new maximum x/y coordinates
@@ -59,7 +59,7 @@ public class InputParser {
                 parsedCells.add(currentCellParsed);
             });
 
-            parsedRegions.add(new Region((int)(long)((JSONObject)shape).get("number"), parsedCells.size(), parsedCells));
+            parsedRegions.add(new Region((int) (long) ((JSONObject) shape).get("number"), parsedCells.size(), parsedCells));
         });
 
         return new Field(maxX[0] + 1, maxY[0] + 1, parsedRegions);

@@ -1,12 +1,12 @@
 package chocona.logic;
 
+import chocona.structure.Cell;
+import chocona.structure.Field;
+import chocona.structure.Region;
 import org.json.simple.parser.ParseException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import chocona.structure.Cell;
-import chocona.structure.Field;
-import chocona.structure.Region;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,13 +30,13 @@ class InputParserTest {
         inputInvalid = System.getProperty("user.dir") + File.separator + "test" + File.separator + "input_data" + File.separator + "invalid.json";
 
         ArrayList<Cell> cellsInExpected = new ArrayList<Cell>();
-        cellsInExpected.add(new Cell(0,0));
-        cellsInExpected.add(new Cell(1,0));
-        cellsInExpected.add(new Cell(0,1));
-        inExpected = new Region(3,3,cellsInExpected);
+        cellsInExpected.add(new Cell(0, 0));
+        cellsInExpected.add(new Cell(1, 0));
+        cellsInExpected.add(new Cell(0, 1));
+        inExpected = new Region(3, 3, cellsInExpected);
         ArrayList<Region> testRegion = new ArrayList<Region>();
         testRegion.add(inExpected);
-        expected = new Field(6,6, testRegion);
+        expected = new Field(6, 6, testRegion);
     }
 
     @AfterEach

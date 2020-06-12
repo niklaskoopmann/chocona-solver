@@ -127,18 +127,18 @@ class ControllerTest {
     }
 
 
-        @Test
-        void setOutputText () {
-            controller.setOutputTextLabel(output);
-            controller.setOutputText("Lorem ipsum");
-            assertEquals("Lorem ipsum", controller.getOutputTextLabel().getText());
-        }
-
-        @Test
-        void resetBoardPane () {
-            controller.drawField(field);
-            assertEquals(36, controller.getBoardPane().getChildren().size());
-            controller.resetBoardPane();
-            assertEquals(0, controller.getBoardPane().getChildren().size());
-        }
+    @Test
+    void setOutputText() {
+        controller.setOutputTextLabel(output);
+        controller.setOutputText("Lorem ipsum");
+        assertEquals("Lorem ipsum", controller.getOutputTextLabel().getText());
     }
+
+    @Test
+    void resetBoardPane() {
+        controller.drawField(field);
+        assertEquals(36, controller.getBoardPane().getChildren().size());
+        controller.resetBoardPane();
+        assertEquals(0, controller.getBoardPane().getChildren().size());
+    }
+}
