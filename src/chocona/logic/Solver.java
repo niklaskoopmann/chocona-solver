@@ -1,7 +1,8 @@
-package logic;
+package chocona.logic;
 
-import structure.Field;
-import structure.Region;
+import chocona.Configuration;
+import chocona.structure.Field;
+import chocona.structure.Region;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -14,11 +15,15 @@ public class Solver {
     private final HashMap<Integer, Integer> populationFitnessHistory;
     private double mutationProbability;
     private ArrayList<Player> population;
+    private boolean solutionFound;
+    private int currentGenerationIndex;
 
     public Solver(int initialPopulationSize, int numberOfGenerations, double mutationProbability, Field toSolve) {
         this.initialPopulationSize = initialPopulationSize;
         this.numberOfGenerations = numberOfGenerations;
         this.mutationProbability = mutationProbability;
+        this.solutionFound = false;
+        this.currentGenerationIndex = 0;
         this.population = new ArrayList<Player>();
         this.populationFitnessHistory = new HashMap<Integer, Integer>();
         this.toSolve = toSolve;
@@ -27,60 +32,111 @@ public class Solver {
 
     // generic constructor sets default values
     public Solver(Field toSolve) {
-        this.initialPopulationSize = 1200;
-        this.numberOfGenerations = 600;
-        this.mutationProbability = 0.01;
+        this.initialPopulationSize = Configuration.initialPopulationSize;
+        this.numberOfGenerations = Configuration.numberOfGenerations;
+        this.mutationProbability = Configuration.mutationProbability;
         this.population = new ArrayList<Player>();
+        this.solutionFound = false;
+        this.currentGenerationIndex = 0;
         this.populationFitnessHistory = new HashMap<Integer, Integer>();
         this.toSolve = toSolve;
         initializePopulation();
     }
 
+    /**
+     * Initialize the Solver's population with initialPopulationSize individuals with random genomes.
+     */
     public void initializePopulation() {
         this.population = new ArrayList<Player>();
-        for (int i = 0; i < this.initialPopulationSize; i++)
-            this.population.add(new Player(this.toSolve.getWidth(), this.toSolve.getHeight(), true));
-    }
+        for (int i = 0; i < this.initialPopulationSize; i++) {
+            Player initialPlayer = new Player(this.toSolve.getWidth(), this.toSolve.getHeight(), true);
 
-    public void stepGeneration(int currentGeneration, ArrayList<Player> currentPopulation) {
-
-        // calculate fitness for each individual
-        int j = 1;
-        int populationFitness = 0;
-        for (Player p : currentPopulation) {
-
+            // calculate initial fitness
             Field wrapper = new Field(this.toSolve.getWidth(), this.toSolve.getHeight(), toSolve.getRegions());
-            wrapper.solution = p.getProposedSolution();
-            p.fitness = checkSolution(wrapper);
-            populationFitness += p.fitness;
-
-            //System.out.printf("Gen. %d, Player %d: Fitness %d, Selection Probability: %f\n", currentGeneration, j, p.fitness, p.fitness / (populationFitness * 1.0));
-
-            j++;
+            wrapper.solution = initialPlayer.getProposedSolution();
+            initialPlayer.setFitness(checkSolution(wrapper));
+            this.population.add(initialPlayer);
         }
 
-        // if there is no significant change in overall fitness, increase mutation rate
-        if (currentGeneration > 10 && Math.abs(populationFitnessHistory.get(currentGeneration - 10) - populationFitness) <= currentPopulation.size() / 100) {
-            this.mutationProbability += 0.01;
-            System.out.println("Increased mutation probability to " + this.mutationProbability);
-        } else this.mutationProbability = 0.01;
+
+        // debug
+        System.out.println("initialised " + this.population.size() + " players");
+    }
+
+    /**
+     * Simulate exactly one generation of individuals and save the result to the Solver.population attribute. Based on
+     * the index currentGeneration, stalling can be detected and additional measures like a higher mutation rate can be
+     * taken.
+     *
+     * @param currentGeneration the current generation index
+     * @param currentPopulation the current population of Players to select, reproduce and mutate
+     */
+    public void stepGeneration(int currentGeneration, ArrayList<Player> currentPopulation) {
+
+        // debug
+        System.out.println("simulating generation " + currentGeneration);
 
         // check if correct solution is present
         currentPopulation.sort(Comparator.comparingInt((Player p) -> p.fitness).reversed());
         if (currentPopulation.get(0).fitness > 1000) {
             this.toSolve.solution = currentPopulation.get(0).getProposedSolution();
             this.population = currentPopulation;
+            this.solutionFound = true;
+
+            // debug
+            System.out.println("solution found" + currentPopulation.get(0).toString());
+
             return;
         }
 
+        // debug
+        System.out.println("no correct solution found");
+
         // perform selection based on fitness
-        ArrayList<Player> matingPool = performSelection(currentPopulation, populationFitness);
+        ArrayList<Player> matingPool = performSelection(currentPopulation);
+
+        // debug
+        System.out.println("mating pool produced, size pop " + currentPopulation.size() + "; size mating pool " + matingPool.size());
 
         // randomize parents for next generation
         Collections.shuffle(matingPool);
 
         // breed children and populate next generation
         ArrayList<Player> nextGeneration = mate(matingPool);
+
+        // debug
+        System.out.println("pop size: " + currentPopulation.size() + "; next gen size: " + nextGeneration.size());
+
+        // add next generation's children to population
+        currentPopulation.addAll(nextGeneration);
+
+        // debug
+        System.out.println("pop size: " + currentPopulation.size());
+
+        // calculate fitness for each individual
+        int populationFitness = 0;
+        for (Player p : currentPopulation) {
+            Field wrapper = new Field(this.toSolve.getWidth(), this.toSolve.getHeight(), toSolve.getRegions());
+            wrapper.solution = p.getProposedSolution();
+            p.fitness = checkSolution(wrapper);
+            populationFitness += p.fitness;
+        }
+
+        // if there is no significant change in overall fitness, increase mutation rate
+        if (currentGeneration > 10 && Math.abs(populationFitnessHistory.get(currentGeneration - 10) - populationFitness) <= currentPopulation.size() / 100) {
+            this.mutationProbability += Configuration.mutationProbability;
+            System.out.println("Increased mutation probability to " + this.mutationProbability);
+        } else this.mutationProbability = Configuration.mutationProbability;
+
+        // debug
+        System.out.println("pop size: " + currentPopulation.size() + " before killing");
+
+        // kill off weakest individuals until base population size is reached
+        currentPopulation.sort(Comparator.comparingInt((Player p) -> p.fitness).reversed());
+        currentPopulation.subList(this.initialPopulationSize, currentPopulation.size()).clear();
+
+        // debug
+        System.out.println("pop size: " + currentPopulation.size() + " after killing");
 
         // lastly save last generation fitness
         this.populationFitnessHistory.put(currentGeneration, populationFitness);
@@ -90,50 +146,94 @@ public class Solver {
         //System.out.println(populationFitness);
         if (currentPopulation.get(0).fitness > 1000) System.out.println(currentPopulation.get(0).toString());
 
-        this.population = nextGeneration;
+        this.population = currentPopulation;
     }
 
-    public ArrayList<Player> performSelection(ArrayList<Player> currentPopulation, int populationFitness) {
+    /**
+     * Selects 1/2 of the input population based directly on their fitness (roulette wheel).
+     *
+     * @param currentPopulation the current full population to select from
+     * @return the selected individuals
+     */
+    public ArrayList<Player> performSelection(ArrayList<Player> currentPopulation) {
+
+        // debug
+        System.out.println("calculating population fitness for " + currentPopulation.size() + " players");
+
+        // calculate population fitness
+        int populationFitness = currentPopulation
+                .stream()
+                .mapToInt(Player::getFitness)
+                .sum();
+
+        // debug
+        System.out.println("population fitness: " + populationFitness);
+
         ArrayList<Player> matingPool = new ArrayList<Player>();
-        /*currentPopulation.sort(Comparator.comparingInt((Player p) -> p.fitness).reversed());
-        for (int k = 0; k < initialPopulationSize / 1.5; k++) {
-            //System.out.println("Individual fitness: " + population.get(k).fitness);
-            matingPool.add(currentPopulation.get(k));
-        }*/
         Random rand = new Random();
-        while (matingPool.size() < this.initialPopulationSize / 1.5) {
+
+        // debug
+        System.out.println("selecting " + this.initialPopulationSize / 2.0 + " of " + currentPopulation.size() + " individuals");
+
+        while (matingPool.size() < this.initialPopulationSize / 2.0) {
             Player player = currentPopulation.get(rand.nextInt(currentPopulation.size()));
             double playerSelectionProbability = (player.fitness * 1.0) / (populationFitness * 1.0);
             //System.out.println("Player fitness: " + player.fitness + "; selection probability: " + playerSelectionProbability);
             if (playerSelectionProbability >= Math.random()) {
                 matingPool.add(player);
-                currentPopulation.remove(player);
             }
         }
         return matingPool;
     }
 
+    /**
+     * Combine all the parent Players in matingPool to produce the next generation of individuals based on the
+     * probabilistic crossover algorithm. Two players produce up to two children with a predefined probability.
+     *
+     * @param matingPool the individuals selected for mating
+     * @return the next generation's population
+     */
     public ArrayList<Player> mate(ArrayList<Player> matingPool) {
+
+        // randomize mating pool
+        Collections.shuffle(matingPool);
+
         // setup next generation
         ArrayList<Player> nextGeneration = new ArrayList<Player>();
+
+        // iterate over all selected Players
         for (int k = 0; k < matingPool.size(); k += 2) {
             Player parentA = matingPool.get(k);
             Player parentB = matingPool.get(k + 1);
-            Player child = performProbabilisticCrossover(parentA, parentB);
-            if (Math.random() < this.mutationProbability)
-                child.mutate(1 + (int) (child.getSizeX() * this.mutationProbability));
-            //if (Math.random() < this.mutationProbability) child.mutate((int)(child.getSizeX() * child.getSizeY() * this.mutationProbability));
-            //child.mutate((int)(child.getSizeX() * child.getSizeY() * this.mutationProbability));
-            nextGeneration.addAll(Arrays.asList(parentA, parentB, child));
+
+            // produce up to two children based on procreation probability
+            ArrayList<Player> children = new ArrayList<Player>();
+            for (int i = 0; i < 2; i++) {
+                if (Math.random() < Configuration.procreationProbability) {
+                    Player child = performProbabilisticCrossover(parentA, parentB);
+                    if (Math.random() < this.mutationProbability)
+                        child.mutate(1 + (int) (child.getSizeX() * this.mutationProbability));
+                    children.add(child);
+                }
+            }
+            nextGeneration.addAll(children);
         }
         return nextGeneration;
     }
 
+    /**
+     * Simulate a predefined number of generations (attribute numberOfGenerations of the Solver)
+     *
+     * @return the proposed solution of the fittest individual after numberOfGenerations generations
+     */
     public Field solvePuzzleGenetic() {
 
-        // simulate generations
-        for (int i = 0; i < numberOfGenerations; i++) {
-            stepGeneration(i, this.population);
+        // simulate generations until solution is found or limit is reached
+        this.currentGenerationIndex = 0;
+        initializePopulation();
+        while (!solutionFound && this.currentGenerationIndex < this.numberOfGenerations) {
+            stepGeneration(this.currentGenerationIndex, this.population);
+            this.currentGenerationIndex++;
         }
 
         this.population.sort(Comparator.comparingInt((Player p) -> p.fitness).reversed());
@@ -146,13 +246,19 @@ public class Solver {
         return new Field(this.population.get(0).getProposedSolution());
     }
 
-    // todo document algorithm
+    /**
+     * Checks and scores a proposed solution in a Field object to calculate individual fitness. The score is based on
+     * the number of rule conformities/violations - the correct solution is awarded 1000 points.
+     *
+     * @param solvedField the proposed solution to check
+     * @return an integer score
+     */
     public int checkSolution(Field solvedField) {
 
         // debug
         //System.out.println("Checking solution...");
 
-        // use final int array for access from within lambda function
+        // use final int array for access from within lambda functions
         final int[] score = {0};
         boolean allRegionsWithTargetCorrect = true;
         boolean correctSolution = true;
@@ -172,11 +278,12 @@ public class Solver {
 
                 // penalty per wrong cell
                 int differenceBlackened = Math.abs(blackened.get() - r.targetNumber);
+
                 if (differenceBlackened != 0) {
                     allRegionsWithTargetCorrect = false;
                     score[0]--;
                 } else {
-                    // award points for each correct region with target number based on the field structure
+                    // award points for each correct region with target number based on the field chocona.structure
                     score[0] += r.totalCells;
                 }
             }
@@ -217,7 +324,13 @@ public class Solver {
         return score[0];
     }
 
-    // todo Might change the types for solution array to int to skip this step
+    /**
+     * Converts a char array of 'B' and 'W' to an integer array of 1 and 0 respectively.
+     *
+     * @param blackWhiteCharArray the char array to convert, consisting of only 'B' and 'W'
+     * @return an integer array with 0s or 1s
+     * @throws IllegalArgumentException if the input contains anything other than 'B' and 'W'
+     */
     public int[] translateToIntArray(char[] blackWhiteCharArray) {
         int[] outIntArray = new int[blackWhiteCharArray.length];
         for (int i = 0; i < blackWhiteCharArray.length; i++) {
@@ -282,6 +395,14 @@ public class Solver {
         return penalty;
     }
 
+    /**
+     * Perform a probabilistic crossover for two individuals to produce a child individual. Decides whether to include
+     * the father's or mother's gene with a probability of 50 % each.
+     *
+     * @param mum the mother Player
+     * @param dad the father Player
+     * @return a child Player based on the genomes of its parents
+     */
     public Player performProbabilisticCrossover(Player mum, Player dad) {
 
         Player child;
@@ -302,6 +423,14 @@ public class Solver {
         } else throw new IllegalArgumentException("Parent dimensions do not match!");
     }
 
+    /**
+     * Perform a one point crossover for two individuals to produce a child individual. Uses the top half of genes from
+     * the father's genome and the bottom half from the mother's.
+     *
+     * @param mum the mother Player
+     * @param dad the father Player
+     * @return a child Player based on the genomes of its parents
+     */
     public Player performHorizontalOnePointCrossover(Player mum, Player dad) {
 
         Player child;
@@ -311,9 +440,8 @@ public class Solver {
 
             child = new Player(mum.getSizeX(), mum.getSizeY(), false);
 
-            // pick random crossover point within 2 rows from center
-            //Random rand = new Random();
-            int crossoverPoint = /*rand.nextInt(5) - 2 + */mum.getProposedSolution().length / 2;
+            // cross over at half the height
+            int crossoverPoint = mum.getProposedSolution().length / 2;
 
             for (int row = 0; row < crossoverPoint; row++) child.setRow(row, dad.getProposedSolution()[row]);
             for (int row = crossoverPoint; row < mum.getSizeY(); row++)
@@ -335,5 +463,13 @@ public class Solver {
 
     public int getInitialPopulationSize() {
         return initialPopulationSize;
+    }
+
+    public boolean isSolutionFound() {
+        return solutionFound;
+    }
+
+    public int getCurrentGenerationIndex() {
+        return currentGenerationIndex;
     }
 }

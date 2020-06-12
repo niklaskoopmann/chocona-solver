@@ -1,12 +1,12 @@
-package logic;
+package chocona.logic;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import structure.Cell;
-import structure.Field;
-import structure.Region;
+import chocona.structure.Cell;
+import chocona.structure.Field;
+import chocona.structure.Region;
 
 import java.nio.charset.Charset;
 import java.nio.file.Files;

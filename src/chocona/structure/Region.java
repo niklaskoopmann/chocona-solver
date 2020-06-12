@@ -1,4 +1,4 @@
-package structure;
+package chocona.structure;
 
 import java.util.ArrayList;
 

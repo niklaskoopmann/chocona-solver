@@ -1,1 +1,1 @@
-# chocona-logic
+# chocona-chocona.logic

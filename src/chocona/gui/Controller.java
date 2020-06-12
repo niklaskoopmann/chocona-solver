@@ -1,4 +1,4 @@
-package gui;
+package chocona.gui;
 
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -12,9 +12,9 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import structure.Cell;
-import structure.Field;
-import structure.Region;
+import chocona.structure.Cell;
+import chocona.structure.Field;
+import chocona.structure.Region;
 
 import java.util.Random;
 
@@ -107,7 +107,7 @@ public class Controller {
             String[] coordinates = node.getId().split("#");
 
             // get the current matching cell from solution
-            char cellSolution = field.solution[Integer.parseInt(coordinates[1])][Integer.parseInt(coordinates[0])];
+            char cellSolution = field.getSolution()[Integer.parseInt(coordinates[1])][Integer.parseInt(coordinates[0])];
 
             // filter the pane's children for StackPanes (will only be one)
             ((Pane)node)
@@ -131,10 +131,22 @@ public class Controller {
     }
 
     public void setOutputText(String s) {
-        outputText = new Label(s);
+        outputText.setText(s);
+    }
+
+    public Label getOutputTextLabel() {
+        return outputText;
     }
 
     public void resetBoardPane() {
         this.boardPane.getChildren().clear();
+    }
+
+    public AnchorPane getBoardPane() {
+        return boardPane;
+    }
+
+    public void setBoardPane(AnchorPane boardPane) {
+        this.boardPane = boardPane;
     }
 }

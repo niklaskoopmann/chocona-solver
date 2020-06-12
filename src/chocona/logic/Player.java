@@ -1,4 +1,4 @@
-package logic;
+package chocona.logic;
 
 import java.util.Arrays;
 import java.util.Random;

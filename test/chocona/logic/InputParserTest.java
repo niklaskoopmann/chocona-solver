@@ -1,12 +1,12 @@
-package logic;
+package chocona.logic;
 
 import org.json.simple.parser.ParseException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import structure.Cell;
-import structure.Field;
-import structure.Region;
+import chocona.structure.Cell;
+import chocona.structure.Field;
+import chocona.structure.Region;
 
 import java.io.File;
 import java.io.IOException;

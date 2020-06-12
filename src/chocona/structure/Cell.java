@@ -1,4 +1,4 @@
-package structure;
+package chocona.structure;
 
 public class Cell {
 
